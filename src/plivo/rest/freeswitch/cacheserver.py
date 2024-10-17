@@ -13,7 +13,7 @@ import optparse
 
 from flask import Flask
 import gevent
-from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 from gevent.pywsgi import WSGIServer as PyWSGIServer
 
 from plivo.rest.freeswitch.cacheapi import PlivoCacheApi
@@ -42,7 +42,7 @@ class PlivoCacheServer(PlivoCacheApi):
         self.load_config()
 
         # expose API functions to flask app
-        for path, func_desc in cacheurls.URLS.iteritems():
+        for path, func_desc in cacheurls.URLS.items():
             func, methods = func_desc
             fn = getattr(self, func.__name__)
             self.app.add_url_rule(path, func.__name__, fn, methods=methods)
@@ -253,8 +253,8 @@ class PlivoCacheServer(PlivoCacheApi):
         """
         self.log.info("CacheServer starting ...")
         # catch SIG_TERM
-        gevent.signal(signal.SIGTERM, self.sig_term)
-        gevent.signal(signal.SIGHUP, self.sig_hup)
+        signal.signal(signal.SIGTERM, self.sig_term)
+        signal.signal(signal.SIGHUP, self.sig_hup)
         # run
         self._run = True
         if self._daemon:

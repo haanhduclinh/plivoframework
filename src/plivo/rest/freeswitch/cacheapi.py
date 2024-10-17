@@ -8,8 +8,7 @@ import os
 import os.path
 from datetime import datetime
 import urllib
-import urllib2
-import urlparse
+from urllib.parse import urlparse
 import traceback
 
 import redis
@@ -100,13 +99,13 @@ class ResourceCache(object):
 
     def cache_resource(self, url):
         if self.proxy_url is not None:
-            proxy = urllib2.ProxyHandler({'http': self.proxy_url})
-            opener = urllib2.build_opener(proxy)
-            urllib2.install_opener(opener)
-        request = urllib2.Request(url)
+            proxy = urllib.ProxyHandler({'http': self.proxy_url})
+            opener = urllib.build_opener(proxy)
+            urllib.install_opener(opener)
+        request = urllib.Request(url)
         user_agent = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.35 Safari/535.1'
         request.add_header('User-Agent', user_agent)
-        handler = urllib2.urlopen(request, timeout=self.http_timeout)
+        handler = urllib.urlopen(request, timeout=self.http_timeout)
         try:
             resource_type = MIME_TYPES[handler.headers.get('Content-Type')]
             if not resource_type:
@@ -132,16 +131,16 @@ class ResourceCache(object):
         no_change = (False, None, None)
         # if no ETag, then check for 'Last-Modified' header
         if etag is not None and etag != "":
-            request = urllib2.Request(url)
+            request = urllib.Request(url)
             request.add_header('If-None-Match', etag)
         elif last_modified is not None and last_modified != "":
-            request = urllib2.Request(url)
+            request = urllib.Request(url)
             request.add_header('If-Modified-Since', last_modified)
         else:
             return no_change
         try:
-            second_try = urllib2.urlopen(request)
-        except urllib2.HTTPError, e:
+            second_try = urllib.urlopen(request)
+        except urllib.HTTPError, e:
             # if http code is 304, no change
             if e.code == 304:
                 return no_change
