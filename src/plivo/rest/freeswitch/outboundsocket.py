@@ -188,7 +188,7 @@ class PlivoOutboundEventSocket(OutboundEventSocket):
     # method will put that event in the queue, then we may continue working.
     # However, other events will still come, like for instance, DTMF.
     def on_channel_execute_complete(self, event):
-        if event['Application'] in self.WAIT_FOR_ACTIONS:
+        if event['Application'] in self.WAIT_FOR_ACTIONS or event['variable_current_application'] in self.WAIT_FOR_ACTIONS:
             # If transfer has begun, put empty event to break current action
             if event['variable_plivo_transfer_progress'] == 'true':
                 self._action_queue.put(Event())
@@ -517,7 +517,10 @@ class PlivoOutboundEventSocket(OutboundEventSocket):
                     raise RESTHangup()
                 res = self.api('uuid_exists %s' % self.get_channel_unique_id())
                 if res.get_response() != 'true':
-                    self.log.warn("Call doesn't exist !")
+                    unique_id = self.get_channel_unique_id()
+                    res_value = res.get_response()  # Get the value of res
+                    self.log.warn("Call doesn't exist! Channel Unique ID: %s, Call Status: %s, Response: %s" %
+                              (unique_id, self.session_params.get('CallStatus', 'unknown'), res_value))
                     raise RESTHangup()
                 # Set target URL to Redirect URL
                 # Set method to Redirect method
@@ -653,6 +656,7 @@ class PlivoOutboundEventSocket(OutboundEventSocket):
                 except IndexError:
                     self.log.warn("No more Elements !")
                     break
+
                 if hasattr(element_instance, 'prepare'):
                     # TODO Prepare element concurrently
                     element_instance.prepare(self)

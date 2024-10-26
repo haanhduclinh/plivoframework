@@ -142,7 +142,7 @@ class HTTPRequest:
         if params:
             if uri.find('?') > 0:
                 uri =  uri.split('?')[0]
-            uri = uri + '?' + urllib.urlencode(params)
+            uri = uri + '?' + urllib.parse.urlencode(params)
         return uri
 
     def _prepare_http_request(self, uri, params, method='POST'):
@@ -326,7 +326,7 @@ def get_resource(socket, url):
             cache_url = socket.cache['url'].strip('/')
             data = {}
             data['url'] = url
-            url_values = urllib.urlencode(data)
+            url_values = urllib.parse.urlencode(data)
             full_url = '%s/CacheType/?%s' % (cache_url, url_values)
             req = urllib2.Request(full_url)
             handler = urllib2.urlopen(req)
@@ -383,7 +383,7 @@ def get_grammar_resource(socket, grammar):
                 cache_url = socket.cache['url'].strip('/')
                 data = {}
                 data['url'] = grammar
-                url_values = urllib.urlencode(data)
+                url_values = urllib.parse.urlencode(data)
                 full_url = '%s/CacheType/?%s' % (cache_url, url_values)
                 req = urllib2.Request(full_url)
                 handler = urllib2.urlopen(req)

@@ -10,7 +10,7 @@ from datetime import datetime
 import urllib
 from urllib.parse import urlparse
 import traceback
-
+import hashlib
 import redis
 import redis.exceptions
 import flask
@@ -125,7 +125,7 @@ class ResourceCache(object):
         return stream, resource_type
 
     def get_resource_key(self, url):
-        return base64.urlsafe_b64encode(_md5(url).digest())
+        return base64.urlsafe_b64encode(hashlib.md5(url.encode('utf-8')).digest())
 
     def is_resource_updated(self, url, etag, last_modified):
         no_change = (False, None, None)
@@ -140,7 +140,7 @@ class ResourceCache(object):
             return no_change
         try:
             second_try = urllib.urlopen(request)
-        except urllib.HTTPError, e:
+        except urllib.HTTPError as e:
             # if http code is 304, no change
             if e.code == 304:
                 return no_change
@@ -238,6 +238,9 @@ class PlivoCacheApi(object):
         self.log.debug("Url is %s" % str(url))
         try:
             file_path, stream, resource_type = get_resource(self, url)
+            if isinstance(resource_type, bytes):
+                resource_type = resource_type.decode('utf-8')
+
             if not stream:
                 self.log.debug("Url %s: no stream" % str(url))
                 return "NO STREAM", 404
@@ -272,6 +275,10 @@ class PlivoCacheApi(object):
         self.log.debug("Url is %s" % str(url))
         try:
             resource_type = get_resource_type(self, url)
+
+            if isinstance(resource_type, bytes):
+                resource_type = resource_type.decode('utf-8')
+
             if not resource_type:
                 self.log.debug("Url %s: no type" % str(url))
                 return "NO TYPE", 404

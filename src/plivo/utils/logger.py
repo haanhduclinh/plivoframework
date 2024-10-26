@@ -219,11 +219,11 @@ class HTTPHandler(logging.handlers.HTTPHandler):
         Send the record to the Web server as a percent-encoded dictionary
         """
         try:
-            import httplib, urllib
+            import httplib, urllib.parse
             host = self.host
             h = httplib.HTTP(host)
             url = self.url
-            data = urllib.urlencode(self.mapLogRecord(record))
+            data = urllib.parse.urlencode(self.mapLogRecord(record))
             if self.method == "GET":
                 if (url.find('?') >= 0):
                     sep = '&'
