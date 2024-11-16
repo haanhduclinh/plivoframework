@@ -230,22 +230,22 @@ class TestInboundCase(TestCase):
         isock = InboundEventSocket('127.0.0.1', 18021, 'ClueCon', eventjson=False)
         try:
             isock.connect()
-        except socket.error, se:
+        except socket.error as se:
             self.fail("socket error: %s" % str(se))
-        except ConnectError, e:
+        except ConnectError as e:
             self.fail("connect error: %s" % str(e))
 
     def test_events(self):
         isock = TestInboundEventSocket('127.0.0.1', 18021, 'ClueCon')
         try:
             isock.connect()
-        except socket.error, se:
+        except socket.error as se:
             self.fail("socket error: %s" % str(se))
-        except ConnectError, e:
+        except ConnectError as e:
             self.fail("connect error: %s" % str(e))
         try:
             isock.serve_for_test()
-        except Timeout, t:
+        except Timeout as t:
             self.fail("timeout error: cannot get all events")
         self.assertEquals(len(isock.heartbeat_events), 10)
         self.assertEquals(len(isock.re_schedule_events), 10)

@@ -301,8 +301,8 @@ class PlivoRestServer(PlivoRestApi):
         """
         self.log.info("RESTServer starting ...")
         # catch SIG_TERM
-        gevent.signal_handler(signal.SIGTERM, self.sig_term)
-        gevent.signal_handler(signal.SIGHUP, self.sig_hup)
+        signal.signal(signal.SIGTERM, self.sig_term)
+        signal.signal(signal.SIGHUP, self.sig_hup)
         # run
         self._run = True
         if self._daemon:

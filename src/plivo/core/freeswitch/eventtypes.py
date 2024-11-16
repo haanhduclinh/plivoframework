@@ -227,7 +227,15 @@ class JsonEvent(Event):
         self._headers = {}
         self._raw_body = ''
         if buffer:
-            buffer = buffer.decode('utf-8', 'ignore')
+            if isinstance(buffer, bytes):
+                buffer = buffer.decode('utf-8', 'ignore')
+            elif isinstance(buffer, str):
+                # If it's already a string, we can use it directly
+                pass
+            else:
+                # If buffer is neither bytes nor string, raise an error or handle appropriately
+                raise TypeError("Expected bytes or string for buffer")
+
             buffer = buffer.encode('utf-8')
             self._headers = json.loads(buffer)
             try:
