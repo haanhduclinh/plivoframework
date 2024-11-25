@@ -8,9 +8,9 @@ import os
 import os.path
 from datetime import datetime
 import urllib
-from urllib.parse import urlparse
+import urllib.request as urllib2
 import traceback
-import hashlib
+
 import redis
 import redis.exceptions
 import flask
@@ -18,13 +18,7 @@ from flask import request
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import Unauthorized
 
-# remove depracated warning in python2.6
-try:
-    from hashlib import md5 as _md5
-except ImportError:
-    import md5
-    _md5 = md5.new
-
+import hashlib
 from plivo.rest.freeswitch.helpers import is_valid_url, get_conf_value, \
                                             get_post_param, get_http_param
 
@@ -99,13 +93,13 @@ class ResourceCache(object):
 
     def cache_resource(self, url):
         if self.proxy_url is not None:
-            proxy = urllib.ProxyHandler({'http': self.proxy_url})
-            opener = urllib.build_opener(proxy)
-            urllib.install_opener(opener)
-        request = urllib.Request(url)
+            proxy = urllib2.ProxyHandler({'http': self.proxy_url})
+            opener = urllib2.build_opener(proxy)
+            urllib2.install_opener(opener)
+        request = urllib2.Request(url)
         user_agent = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.35 Safari/535.1'
         request.add_header('User-Agent', user_agent)
-        handler = urllib.urlopen(request, timeout=self.http_timeout)
+        handler = urllib2.urlopen(request, timeout=self.http_timeout)
         try:
             resource_type = MIME_TYPES[handler.headers.get('Content-Type')]
             if not resource_type:
@@ -131,16 +125,16 @@ class ResourceCache(object):
         no_change = (False, None, None)
         # if no ETag, then check for 'Last-Modified' header
         if etag is not None and etag != "":
-            request = urllib.Request(url)
+            request = urllib2.Request(url)
             request.add_header('If-None-Match', etag)
         elif last_modified is not None and last_modified != "":
-            request = urllib.Request(url)
+            request = urllib2.Request(url)
             request.add_header('If-Modified-Since', last_modified)
         else:
             return no_change
         try:
-            second_try = urllib.urlopen(request)
-        except urllib.HTTPError as e:
+            second_try = urllib2.urlopen(request)
+        except urllib2.HTTPError as e:
             # if http code is 304, no change
             if e.code == 304:
                 return no_change
@@ -244,6 +238,7 @@ class PlivoCacheApi(object):
             if not stream:
                 self.log.debug("Url %s: no stream" % str(url))
                 return "NO STREAM", 404
+
             if resource_type == 'mp3':
                 _type = 'audio/mp3'
             elif resource_type == 'wav':
@@ -253,7 +248,7 @@ class PlivoCacheApi(object):
             elif resource_type == 'jsgf':
                 _type = 'application/x-jsgf'
             else:
-                self.log.debug("Url %s: not supported format" % str(url))
+                self.log.debug("Url %s: not supported format | resource_type: %s" % (str(url), str(resource_type)))
                 return "NOT SUPPORTED FORMAT", 404
             self.log.debug("Url %s: stream found" % str(url))
             return flask.Response(response=stream, status=200,

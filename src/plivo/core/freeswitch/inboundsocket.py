@@ -66,6 +66,7 @@ class InboundEventSocket(EventSocket):
             raise
 
     def run(self):
+        print("InboundEventSocket#run")
         super(InboundEventSocket, self).connect()
         # Connects transport, if connection fails, raise ConnectError
         try:
@@ -75,11 +76,13 @@ class InboundEventSocket(EventSocket):
         # Sets connected flag to True
         self.connected = True
 
+        print("InboundEventSocket | self.connected is True")
         # Be sure command pool is empty before starting
         self._flush_commands()
 
         # Starts handling events
         self.start_event_handler()
+        print("InboundEventSocket | self.start_event_handler")
 
         # Waits for auth/request, if timeout, raises ConnectError
         self._wait_auth_request()
@@ -92,6 +95,7 @@ class InboundEventSocket(EventSocket):
 
         # Sets event filter or raises ConnectError
         if self._filter:
+            print("InboundEventSocket | ....")
             if self._is_eventjson:
                 filter_response = self.eventjson(self._filter)
             else:

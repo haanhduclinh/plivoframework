@@ -516,11 +516,16 @@ class PlivoOutboundEventSocket(OutboundEventSocket):
                 if self.has_hangup():
                     raise RESTHangup()
                 res = self.api('uuid_exists %s' % self.get_channel_unique_id())
-                if res.get_response() != 'true':
+                res_value = res.get_response()
+
+                if isinstance(res_value, bytes):
+                    res_value = res_value.decode('utf-8')
+
+                if res_value != 'true':
                     unique_id = self.get_channel_unique_id()
                     res_value = res.get_response()  # Get the value of res
-                    self.log.warn("Call doesn't exist! Channel Unique ID: %s, Call Status: %s, Response: %s" %
-                              (unique_id, self.session_params.get('CallStatus', 'unknown'), res_value))
+                    self.log.warn("Call doesn't exist! Channel Unique ID: %s, Call Status: %s, Response: %s" % (unique_id, self.session_params.get('CallStatus', 'unknown'), res_value))
+                    self.log.warn("Call doesn't exist !")
                     raise RESTHangup()
                 # Set target URL to Redirect URL
                 # Set method to Redirect method
@@ -579,7 +584,7 @@ class PlivoOutboundEventSocket(OutboundEventSocket):
             return data.decode('utf-8')
 
         except Exception as e:
-            self.log.error("Sending to %s %s with %s -- Error: %s" \
+            self.log.error("outboundsocket.py | Sending to %s %s with %s -- Error: %s" \
                                         % (method, url, params, e))
         return None
 
@@ -656,7 +661,6 @@ class PlivoOutboundEventSocket(OutboundEventSocket):
                 except IndexError:
                     self.log.warn("No more Elements !")
                     break
-
                 if hasattr(element_instance, 'prepare'):
                     # TODO Prepare element concurrently
                     element_instance.prepare(self)

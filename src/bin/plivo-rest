@@ -44,6 +44,8 @@ if __name__ == '__main__':
     if not os.path.isfile(configfile):
         print("Config file %s not found !" % configfile)
         sys.exit(1)
+
+    print("Plivo-rest | Config file path: %s" % configfile)
     rest_server = PlivoRestServer(configfile, daemon=daemon, pidfile=pidfile)
     rest_server.start()
     sys.exit(0)

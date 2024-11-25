@@ -950,6 +950,8 @@ class Dial(Element):
             reason = None
             originate_disposition = event['variable_originate_disposition']
             hangup_cause = originate_disposition
+
+            outbound_socket.log.info("----> hangup_cause: %s" % str(hangup_cause))
             if hangup_cause == 'ORIGINATOR_CANCEL':
                 reason = '%s (A leg)' % hangup_cause
             else:
@@ -1648,7 +1650,7 @@ class Notify(Element):
             data = http_obj.fetch_response(self.url, params, self.method, log=outbound_socket.log)
             return data
         except Exception as e:
-            self.log.error("Sending to %s %s with %s -- Error: %s" \
+            self.log.error("elements | Sending to %s %s with %s -- Error: %s" \
                                         % (self.method, self.url, params, e))
         return None
 

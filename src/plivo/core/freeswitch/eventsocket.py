@@ -4,7 +4,7 @@
 """
 Event Socket class
 """
-
+import traceback
 from uuid import uuid1
 
 import gevent
@@ -127,6 +127,7 @@ class EventSocket(Commands):
                 break
             except Exception as ex:
                 self.trace("handle_events error => %s" % str(ex))
+                print(traceback.format_exc())
         self.trace("handle_events stopped now")
 
         try: 

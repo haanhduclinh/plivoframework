@@ -146,7 +146,7 @@ if [ $CONFIG_NAME ]; then
 	fi
 else
 	CONFIG_LIST=$(ls $CONFIG_DIR/*.conf 2>/dev/null)
-	if [ -z "$CONFIG_LIST" ]; then
+	if [ -z $CONFIG_LIST ]; then
 		echo "ERROR Plivo - No config file found in $CONFIG_DIR"
 		exit 1
 	fi

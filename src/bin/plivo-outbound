@@ -44,6 +44,7 @@ if __name__ == '__main__':
     if not os.path.isfile(configfile):
         print("Config file %s not found !" % configfile)
         sys.exit(1)
+    print("Plivo-Outbound | Config file path: %s" % configfile)
     outbound_server = PlivoOutboundServer(configfile, daemon=daemon, pidfile=pidfile)
     outbound_server.start()
     sys.exit(0)

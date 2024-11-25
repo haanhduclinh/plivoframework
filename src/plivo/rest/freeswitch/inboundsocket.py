@@ -35,6 +35,13 @@ class RESTInboundSocket(InboundEventSocket):
         self.log = self.server.log
         self.cache = self.server.get_cache()
 
+        # Check values before passing them
+        fs_host = self.get_server().fs_host
+        fs_port = self.get_server().fs_port
+        fs_password = self.get_server().fs_password
+
+        self.log.debug(f"Initializing InboundEventSocket with host: {fs_host}, port: {fs_port} , pass: {fs_password}")
+
         InboundEventSocket.__init__(self, self.get_server().fs_host,
                                     self.get_server().fs_port,
                                     self.get_server().fs_password,
@@ -469,6 +476,7 @@ class RESTInboundSocket(InboundEventSocket):
                 self.log.warn("TransferCall Aborted (hangup) for %s" % call_uuid)
 
     def on_session_heartbeat(self, event):
+        self.log.debug(f"Session Heartbeat | Received event: {event}")
         """Capture every heartbeat event in a session and post info
         """
         params = {}
@@ -606,7 +614,7 @@ class RESTInboundSocket(InboundEventSocket):
             data = http_obj.fetch_response(url, params, method, log=self.log)
             return data
         except Exception as e:
-            self.log.error("Sending to %s %s with %s -- Error: %s"
+            self.log.error("inboundsocket | Sending to %s %s with %s -- Error: %s"
                                         % (method, url, params, e))
         return None
 
